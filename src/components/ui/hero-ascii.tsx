@@ -102,14 +102,14 @@ export default function HeroAscii() {
         <div className="container mx-auto px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 lg:gap-4">
             <div className="font-mono text-white text-xl lg:text-2xl font-bold tracking-widest italic transform -skew-x-12">
-              UIMIX
+              АЙЯ
             </div>
             <div className="h-3 lg:h-4 w-px bg-white/40"></div>
             <span className="text-white/60 text-[8px] lg:text-[10px] font-mono">EST. 2025</span>
           </div>
 
           <div className="hidden lg:flex items-center gap-3 text-[10px] font-mono text-white/60">
-            <span>LAT: 37.7749°</span>
+            <span>LAT: 43.2389°</span>
             <div className="w-1 h-1 bg-white/40 rounded-full"></div>
             <span>LONG: 122.4194°</span>
           </div>
@@ -136,9 +136,9 @@ export default function HeroAscii() {
             <div className="relative">
               <div className="hidden lg:block absolute -left-3 top-0 bottom-0 w-1 dither-pattern opacity-40"></div>
               <h1 className="text-2xl lg:text-5xl font-bold text-white mb-3 lg:mb-4 leading-tight font-mono tracking-wider" style={{ letterSpacing: '0.1em' }}>
-                PERFECT
-                <span className="block text-white mt-1 lg:mt-2 opacity-90">
-                  PROPORTIONS
+                ТЕХНОЛОГИИ
+                <span className="block text-white mt-1 lg:mt-2 opacity-90 uppercase">
+                  БУДУЩЕГО
                 </span>
               </h1>
             </div>
@@ -153,7 +153,7 @@ export default function HeroAscii() {
             {/* Description with subtle grid pattern */}
             <div className="relative">
               <p className="text-xs lg:text-base text-gray-300 mb-5 lg:mb-6 leading-relaxed font-mono opacity-80">
-                Where geometry meets humanity — Da Vinci's vision of ideal form
+                Аптечная сеть Айя — новый взгляд на фармацевтическую розницу. Цифровой сервис и забота о каждом клиенте.
               </p>
 
               {/* Technical corner accent - desktop only */}
@@ -167,11 +167,11 @@ export default function HeroAscii() {
               <button className="relative px-5 lg:px-6 py-2 lg:py-2.5 bg-transparent text-white font-mono text-xs lg:text-sm border border-white hover:bg-white hover:text-black transition-all duration-200 group">
                 <span className="hidden lg:block absolute -top-1 -left-1 w-2 h-2 border-t border-l border-white opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 <span className="hidden lg:block absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-white opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                GET STARTED
+                В КАТАЛОГ
               </button>
 
               <button className="relative px-5 lg:px-6 py-2 lg:py-2.5 bg-transparent border border-white text-white font-mono text-xs lg:text-sm hover:bg-white hover:text-black transition-all duration-200" style={{ borderWidth: '1px' }}>
-                LEARN MORE
+                О ПРОЕКТЕ
               </button>
             </div>
 
@@ -179,7 +179,7 @@ export default function HeroAscii() {
             <div className="hidden lg:flex items-center gap-2 mt-6 opacity-40">
               <span className="text-white text-[9px] font-mono">∞</span>
               <div className="flex-1 h-px bg-white"></div>
-              <span className="text-white text-[9px] font-mono">VITRUVIAN</span>
+              <span className="text-white text-[9px] font-mono">PHARMA 2.0</span>
             </div>
           </div>
         </div>
@@ -189,24 +189,24 @@ export default function HeroAscii() {
       <div className="absolute left-0 right-0 z-20 border-t border-white/20 bg-black/40 backdrop-blur-sm" style={{ bottom: '5vh' }}>
         <div className="container mx-auto px-4 lg:px-8 py-2 lg:py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 lg:gap-6 text-[8px] lg:text-[9px] font-mono text-white/50">
-            <span className="hidden lg:inline">SYSTEM.ACTIVE</span>
-            <span className="lg:hidden">SYS.ACT</span>
+            <span className="hidden lg:inline">АЙЯ.СИСТЕМА</span>
+            <span className="lg:hidden">АЙЯ.АКТИВ</span>
             <div className="hidden lg:flex gap-1">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="w-1 h-3 bg-white/30" style={{ height: `${Math.random() * 12 + 4}px` }}></div>
               ))}
             </div>
-            <span>V1.0.0</span>
+            <span>V2.5.0</span>
           </div>
 
           <div className="flex items-center gap-2 lg:gap-4 text-[8px] lg:text-[9px] font-mono text-white/50">
-            <span className="hidden lg:inline">◐ RENDERING</span>
+            <span className="hidden lg:inline">◐ ЗАГРУЗКА ДАННЫХ</span>
             <div className="flex gap-1">
               <div className="w-1 h-1 bg-white/60 rounded-full animate-pulse"></div>
               <div className="w-1 h-1 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
               <div className="w-1 h-1 bg-white/20 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
             </div>
-            <span className="hidden lg:inline">FRAME: ∞</span>
+            <span className="hidden lg:inline">ПОДРАЗДЕЛЕНИЯ: 12</span>
           </div>
         </div>
       </div>

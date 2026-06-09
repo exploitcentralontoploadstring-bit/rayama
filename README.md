@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Фармацевтическая компания «Айя»
 
-## Getting Started
+Сайт сети аптечных пунктов «Айя». Розничная торговля лекарственными средствами, изделиями медицинского назначения и парафармацевтикой.
 
-First, run the development server:
+## Технологический стек
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework:** [Next.js 15+](https://nextjs.org/) (App Router)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+- **Animations:** [Three.js](https://threejs.org/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Установка и запуск
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Установите зависимости:
+   ```bash
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Запустите сервер для разработки:
+   ```bash
+   npm run dev
+   ```
 
-## Learn More
+3. Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-To learn more about Next.js, take a look at the following resources:
+## Структура проекта и настройка
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Проект настроен с использованием структуры **shadcn/ui**, которая является отраслевым стандартом для современных React-приложений.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Почему используется `/components/ui`?
 
-## Deploy on Vercel
+В данном проекте все базовые компоненты (кнопки, вводы и т.д.), а также интегрированные интерактивные фоны, располагаются в директории `src/components/ui`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Важность этой структуры:**
+1. **Соглашение shadcn:** CLI shadcn по умолчанию ожидает наличие этой папки для установки и обновления компонентов.
+2. **Организация кода:** Это разделяет переиспользуемые атомарные компоненты интерфейса от логики конкретных страниц или сложных бизнес-компонентов.
+3. **Совместимость:** Обеспечивает легкую интеграцию новых компонентов, следующих тем же принципам дизайна и типизации.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Инструкции по настройке (если требуется ручная установка)
+
+Если вы создаете проект с нуля:
+
+1. **TypeScript & Tailwind CSS:** Рекомендуется использовать `create-next-app` с включенными флагами TS и Tailwind:
+   ```bash
+   npx create-next-app@latest my-app --typescript --tailwind --eslint
+   ```
+
+2. **shadcn CLI:** Инициализируйте shadcn в корне проекта:
+   ```bash
+   npx shadcn@latest init
+   ```
+   При инициализации выберите `src/components` в качестве базового пути, что автоматически создаст подпапку `ui` для компонентов.
+
+## Интегрированные компоненты
+
+### 1. Interactive Hero Background
+Расположен в `src/components/ui/interactive-hero-backgrounds.tsx`. Использует Three.js для создания физической симуляции "бассейна с шариками", реагирующей на движение курсора.
+
+### 2. Hero ASCII
+Расположен в `src/components/ui/hero-ascii.tsx`. Использует внешние скрипты Unicorn Studio для отображения футуристичной ASCII-анимации (фигура Витрувианского человека).
+
+## Страницы
+- `/` — Главная страница аптеки с категориями товаров и списком филиалов.
+- `/innovation` — Демонстрационная страница с ASCII-анимацией.
