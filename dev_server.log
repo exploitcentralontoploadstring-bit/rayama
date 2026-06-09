@@ -1,0 +1,62 @@
+
+> tmp@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 566ms
+
+○ Compiling / ...
+ GET / 200 in 6.1s (next.js: 5.4s, application-code: 667ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="src/page.tsx">
+            <SegmentTrieNode>
+            <ClientPageRoot Component={function Home} serverProvidedParams={{...}}>
+              <Home params={Promise} searchParams={Promise}>
+                <main>
+                  <InteractiveHero brandName="АЙЯ" heroTitle="Сеть аптеч..." heroDescription="Ваше здоро..." ...>
+                    <div className="relative w...">
+                      <canvas>
+                      <header>
+                      <main className="relative z...">
+                        <div className="max-w-3xl">
+                          <h1>
+                          <p>
+                          <form onSubmit={function handleEmailSubmit} className="mt-8 flex ...">
+                            <div className="relative w...">
+                              <Mail>
+                              <input
+                                type="email"
+                                placeholder="Ваш email для связи"
+                                value=""
+                                onChange={function onChange}
+                                className="w-full bg-secondary/50 border border-transparent hover:border-border/50 foc..."
+                                required={true}
+-                               style={{caret-color:"transparent"}}
+                              >
+                            ...
+                  ...
+          ...
+        ...
+
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/ui/interactive-hero-backgrounds.tsx:22:21)
+ GET / 200 in 73ms (next.js: 5ms, application-code: 68ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/ui/interactive-hero-backgrounds.tsx:22:21)
+ GET / 200 in 81ms (next.js: 8ms, application-code: 73ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/ui/interactive-hero-backgrounds.tsx:22:21)
