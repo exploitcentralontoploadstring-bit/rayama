@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АЙЯ — Сеть аптечных пунктов</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
+
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .font-mono {
+            font-family: 'Geist Mono', monospace;
+        }
+
+        /* Hero ASCII Styles */
+        [data-us-project] {
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        [data-us-project] canvas {
+            clip-path: inset(0 0 10% 0) !important;
+        }
+        [data-us-project] * {
+            pointer-events: none !important;
+        }
+        [data-us-project] a[href*="unicorn"],
+        [data-us-project] button[title*="unicorn"],
+        [data-us-project] div[title*="Made with"],
+        [data-us-project] .unicorn-brand {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        .dither-pattern {
+            background-image:
+                repeating-linear-gradient(0deg, transparent 0px, transparent 1px, white 1px, white 2px),
+                repeating-linear-gradient(90deg, transparent 0px, transparent 1px, white 1px, white 2px);
+            background-size: 3px 3px;
+        }
+
+        .stars-bg {
+            background-image:
+                radial-gradient(1px 1px at 20% 30%, white, transparent),
+                radial-gradient(1px 1px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent);
+            background-size: 200% 200%;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- Interactive Ballpit Logic (Simplified for Vanilla Three.js) ---
+        const Ballpit = ({ config }) => {
+            const canvasRef = useRef();
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+                camera.position.set(0, 0, 20);
+
+                const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+                renderer.setSize(width, height);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                const count = config.count || 100;
+                const geometry = new THREE.SphereGeometry(1, 24, 24);
+                const material = new THREE.MeshPhysicalMaterial({
+                    metalness: 0.7,
+                    roughness: 0.3,
+                    clearcoat: 1,
+                    color: 0x444444
+                });
+
+                const mesh = new THREE.InstancedMesh(geometry, material, count);
+                scene.add(mesh);
+
+                const dummy = new THREE.Object3D();
+                const positions = new Float32Array(count * 3);
+                const velocities = new Float32Array(count * 3);
+                const sizes = new Float32Array(count);
+
+                for (let i = 0; i < count; i++) {
+                    positions[i * 3] = (Math.random() - 0.5) * 20;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+                    velocities[i * 3 + 1] = -Math.random() * 0.05;
+                    sizes[i] = 0.3 + Math.random() * 0.5;
+                }
+
+                const mouse = new THREE.Vector2();
+                const raycaster = new THREE.Raycaster();
+                const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+                const point = new THREE.Vector3();
+
+                const onMove = (e) => {
+                    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                };
+                window.addEventListener('pointermove', onMove);
+
+                const animate = () => {
+                    requestAnimationFrame(animate);
+
+                    raycaster.setFromCamera(mouse, camera);
+                    raycaster.ray.intersectPlane(plane, point);
+
+                    for (let i = 0; i < count; i++) {
+                        const idx = i * 3;
+
+                        // Physics
+                        velocities[idx + 1] -= 0.001 * sizes[i]; // Gravity
+                        positions[idx] += velocities[idx];
+                        positions[idx + 1] += velocities[idx + 1];
+                        positions[idx + 2] += velocities[idx + 2];
+
+                        // Floor bounce
+                        if (positions[idx + 1] < -10) {
+                            positions[idx + 1] = -10;
+                            velocities[idx + 1] *= -0.5;
+                        }
+
+                        // Interaction with cursor
+                        const dx = positions[idx] - point.x;
+                        const dy = positions[idx + 1] - point.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < 3) {
+                            velocities[idx] += dx * 0.01;
+                            velocities[idx + 1] += dy * 0.01;
+                        }
+
+                        dummy.position.set(positions[idx], positions[idx + 1], positions[idx + 2]);
+                        dummy.scale.setScalar(sizes[i]);
+                        dummy.updateMatrix();
+                        mesh.setMatrixAt(i, dummy.matrix);
+                    }
+                    mesh.instanceMatrix.needsUpdate = true;
+                    renderer.render(scene, camera);
+                };
+                animate();
+
+                const handleResize = () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                };
+                window.addEventListener('resize', handleResize);
+
+                return () => {
+                    window.removeEventListener('pointermove', onMove);
+                    window.removeEventListener('resize', handleResize);
+                };
+            }, []);
+
+            return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
+        };
+
+        const App = () => {
+            const [showInnovation, setShowInnovation] = useState(false);
+
+            useEffect(() => {
+                // Initialize Lucide icons
+                lucide.createIcons();
+            }, [showInnovation]);
+
+            if (showInnovation) {
+                return <InnovationPage onBack={() => setShowInnovation(false)} />;
+            }
+
+            return (
+                <div className="flex flex-col min-h-screen bg-white text-black">
+                    {/* Hero Section */}
+                    <section className="relative h-screen bg-black text-white overflow-hidden">
+                        <Ballpit config={{ count: 150 }} />
+
+                        <div className="relative z-10 flex flex-col h-full">
+                            <header className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+                                <div className="text-2xl font-bold tracking-tighter">АЙЯ</div>
+                                <nav className="hidden md:flex gap-8 text-sm font-medium opacity-70">
+                                    <a href="#">О компании</a>
+                                    <a href="#">Каталог</a>
+                                    <a href="#">Аптеки</a>
+                                    <a href="#">Контакты</a>
+                                </nav>
+                                <button onClick={() => setShowInnovation(true)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full text-xs transition-colors">
+                                    Innovation Lab
+                                </button>
+                            </header>
+
+                            <main className="flex-1 flex items-center justify-center text-center px-4">
+                                <div className="max-w-3xl">
+                                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6">
+                                        Сеть аптечных пунктов Айя
+                                    </h1>
+                                    <p className="text-lg md:text-xl opacity-70 mb-10 max-w-2xl mx-auto">
+                                        Ваше здоровье — наша главная ценность. Розничная торговля лекарственными средствами и изделиями медицинского назначения.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                        <button className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-gray-200 transition-colors">
+                                            Найти лекарство
+                                        </button>
+                                        <button className="border border-white/30 px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-colors">
+                                            Наши адреса
+                                        </button>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </section>
+
+                    {/* Categories */}
+                    <section className="py-24 px-6 bg-gray-50">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-4xl font-bold mb-12">Популярные категории</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                {[
+                                    { title: "Лекарства", img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400" },
+                                    { title: "Витамины", img: "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?w=400" },
+                                    { title: "Косметика", img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400" },
+                                    { title: "Медтехника", img: "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400" }
+                                ].map((item, i) => (
+                                    <div key={i} className="group cursor-pointer">
+                                        <div className="aspect-square rounded-3xl overflow-hidden mb-4 shadow-sm border bg-white">
+                                            <img src={item.img} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                        </div>
+                                        <h3 className="text-xl font-bold">{item.title}</h3>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Locations */}
+                    <section className="py-24 px-6 bg-white border-t">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-4xl font-bold mb-12">Наши аптеки</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {[
+                                    { name: "Айя Центральная", addr: "ул. Абая, 45", hours: "Круглосуточно" },
+                                    { name: "Айя Север", addr: "пр. Достык, 120", hours: "08:00 - 22:00" },
+                                    { name: "Айя Запад", addr: "мкр. Орбита-3, 15", hours: "09:00 - 21:00" }
+                                ].map((loc, i) => (
+                                    <div key={i} className="p-8 rounded-3xl border bg-gray-50">
+                                        <h3 className="text-2xl font-bold mb-4">{loc.name}</h3>
+                                        <p className="opacity-70 mb-2">{loc.addr}</p>
+                                        <p className="font-medium text-green-600">{loc.hours}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="bg-black text-white py-20 px-6">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-12">
+                            <div>
+                                <div className="text-3xl font-bold mb-6">АЙЯ</div>
+                                <p className="opacity-50 max-w-sm">Забота о вашем здоровье с 2025 года. Лучшие цены и сертифицированные товары.</p>
+                            </div>
+                            <div className="flex gap-20">
+                                <div className="flex flex-col gap-4">
+                                    <h4 className="font-bold uppercase tracking-widest text-xs opacity-40">Меню</h4>
+                                    <a href="#" className="hover:opacity-100 opacity-70">О нас</a>
+                                    <a href="#" className="hover:opacity-100 opacity-70">Каталог</a>
+                                    <a href="#" className="hover:opacity-100 opacity-70">Блог</a>
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    <h4 className="font-bold uppercase tracking-widest text-xs opacity-40">Помощь</h4>
+                                    <a href="#" className="hover:opacity-100 opacity-70">Доставка</a>
+                                    <a href="#" className="hover:opacity-100 opacity-70">Оплата</a>
+                                    <a href="#" className="hover:opacity-100 opacity-70">Контакты</a>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const InnovationPage = ({ onBack }) => {
+            useEffect(() => {
+                const embedScript = document.createElement('script');
+                embedScript.type = 'text/javascript';
+                embedScript.textContent = `
+                    !function(){
+                        if(!window.UnicornStudio){
+                            window.UnicornStudio={isInitialized:!1};
+                            var i=document.createElement("script");
+                            i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.33/dist/unicornStudio.umd.js";
+                            i.onload=function(){
+                                window.UnicornStudio.isInitialized||(UnicornStudio.init(),window.UnicornStudio.isInitialized=!0)
+                            };
+                            (document.head || document.body).appendChild(i)
+                        }
+                    }();
+                `;
+                document.head.appendChild(embedScript);
+
+                const hideBranding = () => {
+                    const projectDiv = document.querySelector('[data-us-project]');
+                    if (projectDiv) {
+                        const allElements = projectDiv.querySelectorAll('*');
+                        allElements.forEach(el => {
+                            const text = (el.textContent || '').toLowerCase();
+                            if (text.includes('made with') || text.includes('unicorn')) el.remove();
+                        });
+                    }
+                };
+                const interval = setInterval(hideBranding, 100);
+
+                return () => {
+                    clearInterval(interval);
+                    document.head.removeChild(embedScript);
+                };
+            }, []);
+
+            return (
+                <main className="relative min-h-screen overflow-hidden bg-black text-white font-mono">
+                    <div className="absolute inset-0 w-full h-full hidden lg:block">
+                        <div data-us-project="whwOGlfJ5Rz2rHaEUgHl" className="w-full h-full min-h-screen" />
+                    </div>
+
+                    <div className="absolute inset-0 w-full h-full lg:hidden stars-bg"></div>
+
+                    <div className="absolute top-0 left-0 right-0 z-20 border-b border-white/20 bg-black/50 backdrop-blur-md">
+                        <div className="container mx-auto px-8 py-4 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="text-2xl font-bold tracking-widest italic transform -skew-x-12">АЙЯ</div>
+                                <div className="h-4 w-px bg-white/40"></div>
+                                <span className="text-white/60 text-[10px]">INNOVATION LAB</span>
+                            </div>
+                            <button onClick={onBack} className="text-[10px] border border-white/40 px-4 py-2 hover:bg-white hover:text-black transition-all">ВЕРНУТЬСЯ</button>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 flex min-h-screen items-center px-8 lg:px-24">
+                        <div className="max-w-lg">
+                            <div className="flex items-center gap-2 mb-4 opacity-60">
+                                <div className="w-8 h-px bg-white"></div>
+                                <span className="text-[10px]">TECH.2025</span>
+                                <div className="flex-1 h-px bg-white"></div>
+                            </div>
+                            <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight tracking-wider">
+                                ТЕХНОЛОГИИ<br/>БУДУЩЕГО
+                            </h1>
+                            <p className="text-sm lg:text-lg text-gray-400 mb-8 leading-relaxed opacity-80">
+                                Мы объединяем фармакологию и высокие технологии для обеспечения максимальной доступности здоровья.
+                            </p>
+                            <div className="flex gap-4">
+                                <button className="px-6 py-3 border border-white hover:bg-white hover:text-black transition-all">ИССЛЕДОВАТЬ</button>
+                                <button className="px-6 py-3 border border-white opacity-40 hover:opacity-100 transition-all">УЗНАТЬ БОЛЬШЕ</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-10 left-0 right-0 z-20 border-t border-white/10 px-8 py-4 flex justify-between text-[9px] opacity-40">
+                        <span>SYSTEM.ACTIVE // V1.0.0</span>
+                        <span>BIT_RATE: 128KBPS // FRAME: ∞</span>
+                    </div>
+                </main>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
